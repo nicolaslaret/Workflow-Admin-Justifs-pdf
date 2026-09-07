@@ -122,6 +122,35 @@ intégré, options de batching et de rate-limit natives.
 Ajout de `expediteur` et `sujet_mail` au journal. Coût nul, et c'est ce qui permet de
 comprendre une extraction douteuse sans repartir de la boîte.
 
+### C15 — La racine Dropbox n'est pas celle du CDC
+
+Le §4.3 annonce une racine `/Justificatifs/`. Vérification faite par interrogation directe de
+l'API le 7 septembre 2026, le dossier réel est **`/Bannette-Numérique/Justificatifs/`**, avec
+`/Bannette-Numérique/Justificatifs/A-classer/` pour le repli.
+
+L'API Dropbox raisonne en chemin relatif à la racine du compte connecté, jamais en chemin
+disque. Coder `/Justificatifs/` en dur aurait créé un second dossier vide à la racine et
+déposé les factures dedans, sans jamais toucher le dossier voulu — en silence.
+
+Deux observations du même relevé :
+
+- Le compte est un **Dropbox Business**. La racine par défaut renvoyée par l'API est la
+  bonne, donc aucun en-tête `Dropbox-API-Path-Root` n'est nécessaire.
+- Le chemin contient un accent (`Numérique`). Dropbox gère l'UTF-8 sans difficulté et le
+  relevé le confirme ; aucun renommage n'est utile.
+
+### C16 — Le nœud Dropbox natif est abandonné au profit d'HTTP Request
+
+Corrige C1. La credential Dropbox prédéfinie de n8n demande une liste de scopes figée qui ne
+contient pas `sharing.write` : les fichiers seraient déposés, mais aucun lien de partage ne
+pourrait être créé.
+
+La chaîne utilise donc une credential **`oAuth2Api` générique** pointant sur les endpoints
+Dropbox, avec les six scopes déclarés à la main, et `token_access_type=offline` en paramètre
+de l'URL d'autorisation — sans lui, Dropbox ne délivre qu'un jeton de 4 heures.
+
+Une seule credential couvre alors le dépôt et le partage, tous deux par HTTP Request.
+
 ## Points ouverts du §12, résolus
 
 | # | Résolution |

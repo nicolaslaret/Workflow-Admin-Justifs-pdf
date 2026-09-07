@@ -44,6 +44,26 @@ toutes en `string`. La colonne `id` n'est pas déclarée — n8n la génère.
 « pas encore envoyé », jamais sur une fenêtre de dates glissante : une fenêtre à sept jours
 perdrait définitivement les pièces d'une semaine où l'exécution a échoué.
 
+## Arborescence Dropbox
+
+Vérifié le 7 septembre 2026 par interrogation directe de l'API.
+
+```
+/Bannette-Numérique/Justificatifs/{ANNÉE}/{FOURNISSEUR}/AAAA-MM-JJ_Fournisseur_Numero.pdf
+/Bannette-Numérique/Justificatifs/A-classer/
+```
+
+**Le dossier n'est pas à la racine du Dropbox.** L'API Dropbox raisonne en chemin relatif à
+la racine du compte connecté, jamais en chemin disque. Coder `/Justificatifs/` en dur aurait
+créé un second dossier vide à la racine sans jamais toucher celui-ci.
+
+Un seul arbre pour les deux statuts : `Justif` et `A-payer` se rangent au même endroit. Le
+statut vit dans le label Gmail et dans le journal, jamais dans le chemin — sinon il faudrait
+déplacer les fichiers.
+
+L'année vient de la **date de facture**, jamais de la date de réception du mail. C'est ce qui
+protège des décalages de fin d'année, où une facture de décembre arrive en janvier.
+
 ## Ordre de déploiement
 
 ### Étape 0 — Manuel, préalable à tout
@@ -51,7 +71,8 @@ perdrait définitivement les pièces d'une semaine où l'exécution a échoué.
 1. Créer les quatre labels Gmail à plat : `Justif`, `A-payer`, `OK`, `A-verifier`.
 2. Créer trois credentials dans l'UI n8n : Gmail OAuth2, Dropbox OAuth2, Anthropic API.
    Le connecteur MCP ne peut pas les créer — les flux OAuth passent par le navigateur.
-3. Créer sur Dropbox `/Justificatifs/` et `/Justificatifs/A-classer/`.
+3. Créer sur Dropbox `/Bannette-Numérique/Justificatifs/` et
+   `/Bannette-Numérique/Justificatifs/A-classer/`.
 
 ### Étape 1 — Data Table
 
