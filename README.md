@@ -9,10 +9,15 @@ modification du workflow.
 
 ## Documentation
 
-- [`docs/audit-cdc-v1.0.md`](docs/audit-cdc-v1.0.md) — les 14 corrections apportées au cahier
+- [`docs/exploitation.md`](docs/exploitation.md) — les identifiants, où changer les horaires,
+  comment lire un incident, comment rejouer.
+- [`docs/audit-cdc-v1.0.md`](docs/audit-cdc-v1.0.md) — les 16 corrections apportées au cahier
   des charges v1.0 après audit de l'instance et de la boîte.
 - [`docs/regles-gmail.md`](docs/regles-gmail.md) — les labels, les expéditeurs identifiés, et
   ceux qu'il ne faut surtout pas labelliser.
+
+Le code SDK des workflows n'est pas dupliqué ici : n8n conserve l'historique de versions de
+chaque workflow, qui fait foi.
 
 ## Architecture
 
