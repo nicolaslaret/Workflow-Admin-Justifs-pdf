@@ -11,6 +11,8 @@ modification du workflow.
 
 - [`docs/exploitation.md`](docs/exploitation.md) — les identifiants, où changer les horaires,
   comment lire un incident, comment rejouer.
+- [`docs/recette.md`](docs/recette.md) — les cinq défauts trouvés sur de vraies factures et ce
+  qu'ils ont changé dans la chaîne.
 - [`docs/audit-cdc-v1.0.md`](docs/audit-cdc-v1.0.md) — les 16 corrections apportées au cahier
   des charges v1.0 après audit de l'instance et de la boîte.
 - [`docs/regles-gmail.md`](docs/regles-gmail.md) — les labels, les expéditeurs identifiés, et
@@ -36,14 +38,15 @@ payer ne doit pas attendre jusqu'à six jours.
 
 ## Modèle de données
 
-Data Table n8n `journal_factures` (`RjKH530pzYwbIkIk`, projet personnel). Treize colonnes,
+Data Table n8n `journal_factures` (`RjKH530pzYwbIkIk`, projet personnel). Quatorze colonnes,
 toutes en `string`. La colonne `id` n'est pas déclarée — n8n la génère.
 
 `cle_piece` · `message_id` · `expediteur` · `sujet_mail` · `fournisseur` · `date_facture` ·
-`numero_facture` · `entite` · `statut` · `chemin_dropbox` · `lien_dropbox` ·
+`numero_facture` · `entite` · `type_document` · `statut` · `chemin_dropbox` · `lien_dropbox` ·
 `date_traitement` · `envoye_le`
 
 `entite` ∈ `AKTIMMO` | `ATTRAKTION` | `COMAKT` | `PERSO` | `""`
+`type_document` ∈ `facture` | `recu` | `avoir` | `relance` | `autre`
 
 **`envoye_le` est le mécanisme anti-doublon d'envoi.** Les workflows d'envoi filtrent sur
 « pas encore envoyé », jamais sur une fenêtre de dates glissante : une fenêtre à sept jours
@@ -54,17 +57,23 @@ perdrait définitivement les pièces d'une semaine où l'exécution a échoué.
 Vérifié le 7 septembre 2026 par interrogation directe de l'API.
 
 ```
-/Bannette-Numérique/Justificatifs/{ANNÉE}/{FOURNISSEUR}/AAAA-MM-JJ_Fournisseur_Numero.pdf
+/Bannette-Numérique/Justificatifs/{ENTITÉ}/{ANNÉE}/{FOURNISSEUR}/
+    AAAA-MM-JJ_ENTITÉ_Fournisseur_Numero_type.pdf
 /Bannette-Numérique/Justificatifs/A-classer/
 ```
+
+L'**entité** est le premier niveau : trois sociétés, trois comptabilités. Elle figure aussi
+dans le nom, pour que le fichier reste lisible une fois téléchargé hors de son dossier. Le
+**type** (`facture`, `recu`, `avoir`, `relance`) clôt le nom : une facture et son reçu de
+paiement portent le même numéro et se marcheraient dessus sans lui.
 
 **Le dossier n'est pas à la racine du Dropbox.** L'API Dropbox raisonne en chemin relatif à
 la racine du compte connecté, jamais en chemin disque. Coder `/Justificatifs/` en dur aurait
 créé un second dossier vide à la racine sans jamais toucher celui-ci.
 
-Un seul arbre pour les deux statuts : `Justif` et `A-payer` se rangent au même endroit. Le
-statut vit dans le label Gmail et dans le journal, jamais dans le chemin — sinon il faudrait
-déplacer les fichiers.
+Le **statut**, lui, reste hors du chemin : un `A-payer` devient payé, il faudrait déplacer
+le fichier. Il vit dans le label Gmail et dans le journal. Une entité, elle, ne change
+jamais — c'est ce qui autorise à la mettre dans le chemin.
 
 L'année vient de la **date de facture**, jamais de la date de réception du mail. C'est ce qui
 protège des décalages de fin d'année, où une facture de décembre arrive en janvier.
@@ -81,7 +90,7 @@ protège des décalages de fin d'année, où une facture de décembre arrive en 
 
 ### Étape 1 — Data Table
 
-Faite. `journal_factures`, treize colonnes.
+Faite. `journal_factures`, quatorze colonnes.
 
 ### Étapes 2 à 5 — Workflows
 
