@@ -58,7 +58,9 @@ Relevé sur les six derniers mois de la boîte.
 **Sellsy et income envoient la même facture dans plusieurs mails.** Sellsy : « Votre facture
 Sellsy », « Votre paiement a été validé », « Merci pour votre paiement » — deux d'entre eux
 portent le PDF. income : trois mails le 12/05. Le workflow dédoublonne sur
-`fournisseur` + `numero_facture`, mais il est inutile de labelliser les trois.
+`fournisseur` + `numero_facture` + `type_document`, mais il est inutile de labelliser les
+trois. Le type entre dans la clé parce qu'une facture et son reçu de paiement portent le même
+numéro : sans lui, le reçu serait écarté comme un doublon.
 
 **income** envoie une paire mensuelle, une par entité. L'objet porte le suffixe
 `- ATTRAKTION` ou `- COMAKT` depuis juin 2026, mais pas avant. La distinction repose sur la

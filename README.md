@@ -11,7 +11,7 @@ modification du workflow.
 
 - [`docs/exploitation.md`](docs/exploitation.md) — les identifiants, où changer les horaires,
   comment lire un incident, comment rejouer.
-- [`docs/recette.md`](docs/recette.md) — les cinq défauts trouvés sur de vraies factures et ce
+- [`docs/recette.md`](docs/recette.md) — les huit défauts trouvés sur de vraies factures et ce
   qu'ils ont changé dans la chaîne.
 - [`docs/audit-cdc-v1.0.md`](docs/audit-cdc-v1.0.md) — les 16 corrections apportées au cahier
   des charges v1.0 après audit de l'instance et de la boîte.

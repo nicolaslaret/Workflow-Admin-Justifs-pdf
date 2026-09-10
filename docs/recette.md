@@ -18,7 +18,7 @@ vient d'un défaut constaté ici, pas d'une supposition.
 - **Le lecteur PDF sort dans `$json.text`**, la documentation n8n se contredisant sur ce point.
 - **La règle TVA fixe l'entité** : `ATTRAKTION` de façon stable sur les deux PDF Anthropic.
 
-## Cinq défauts trouvés, et leur correction
+## Six défauts trouvés, et leur correction
 
 ### 1. Facture et reçu ne sont pas des doublons
 

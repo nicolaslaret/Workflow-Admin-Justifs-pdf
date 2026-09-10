@@ -48,6 +48,11 @@ Sans garde-fou, Sophie reçoit la ligne deux ou trois fois.
 extraction et avant dépôt. Si la pièce est déjà connue : poser le label `OK`, ne rien
 déposer, ne rien journaliser.
 
+> **Corrigé en recette.** Une facture et son reçu de paiement portent le même numéro : cette
+> clé à deux termes aurait écarté le reçu en silence. La clé retenue est
+> `fournisseur` + `numero_facture` + `type_document` — voir
+> [`recette.md`](recette.md), défaut 1.
+
 ### C4 — Les transferts à Sophie seraient ré-ingérés
 
 Le process actuel est le `Fwd:` vers `sophie@solead-gestion.fr` ; le PDF est ré-attaché
@@ -160,14 +165,18 @@ Une seule credential couvre alors le dépôt et le partage, tous deux par HTTP R
 | 12.4 | **Stericlean trouvé** : `invoice2go@communications.2go.com`, objet « Facture N°628 de SteriClean », vers `info@aktimmo.fr`. Le fournisseur n'apparaît pas dans le domaine expéditeur, ce qui valide l'approche « lire le PDF » du §5.2. **Bel Art : toujours introuvable** sur six mois. |
 | 12.6 | income : l'entité figure dans l'objet (`- ATTRAKTION`, `- COMAKT`) depuis juin, mais **pas** sur les trois mails du 12/05, intitulés « income - Note d'honoraires » sans suffixe. L'objet n'est donc pas un repli fiable ; la distinction doit venir du PDF. |
 
-Restent ouverts : **Bel Art** (aucun expéditeur identifié), le **jour du récap hebdomadaire**
-(proposition : vendredi 9h), et la **dérive du nom de fournisseur** (§6.8, non traitée en
-phase 1 comme prévu).
+Deux de ces points ont été tranchés depuis : le **récap hebdomadaire** part le **vendredi à
+9h**, et la **dérive du nom de fournisseur** (§6.8) n'a pas attendu la phase 2 — elle s'est
+produite sur le premier fournisseur testé et a été traitée en recette par rapprochement sur
+les dossiers Dropbox existants.
+
+Reste ouvert : **Bel Art**, aucun expéditeur identifié.
 
 ## Décisions actées
 
 1. Quatrième valeur d'entité `PERSO` (C5).
 2. Construction des workflows désactivés, branchement des credentials ensuite.
-3. Anti-doublon par `fournisseur` + `numero_facture` (C3).
+3. Anti-doublon par `fournisseur` + `numero_facture` (C3), porté à trois termes en recette
+   avec `type_document`.
 4. Liens Dropbox publics acceptés — seul mode disponible en Dropbox Basic. Les factures
    comportent IBAN et adresses ; le lien est long et non indexé, le risque est assumé.
