@@ -145,6 +145,16 @@ que le sous-total sur l'anglaise. La virgule décimale française est convertie 
 normalisation, qui distingue le séparateur décimal du séparateur de milliers en regardant
 combien de chiffres le suivent.
 
+### 8. Le registre familier ne tenait pas à l'usage
+
+Le §7 du CDC demandait le ton habituel avec Sophie : « Coucou ma So » en ouverture, « Biz » en
+clôture. Vu sur un vrai envoi, l'effet est faux : c'est un message automatique quotidien, pas
+une conversation, et la formule d'amitié sonne creux répétée 250 fois par an.
+
+**Correction :** registre procédural. Une ligne d'introduction factuelle — « 3 factures à
+régler. » — le tableau, et fin. Les accents des en-têtes et du lien, perdus à la construction,
+sont rétablis : ces mails partent à l'extérieur.
+
 ## Reste à éprouver
 
 - **Le rendu des tableaux avec la colonne Montant et le total en pied** — le code est écrit,
