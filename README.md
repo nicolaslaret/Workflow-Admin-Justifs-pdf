@@ -17,6 +17,8 @@ modification du workflow.
   des charges v1.0 après audit de l'instance et de la boîte.
 - [`docs/regles-gmail.md`](docs/regles-gmail.md) — les labels, les expéditeurs identifiés, et
   ceux qu'il ne faut surtout pas labelliser.
+- [`docs/evolutions.md`](docs/evolutions.md) — le carnet des idées pour la suite. Rien de ce
+  qui s'y trouve n'est décidé ni engagé.
 
 Le code SDK des workflows n'est pas dupliqué ici : n8n conserve l'historique de versions de
 chaque workflow, qui fait foi.
