@@ -155,6 +155,17 @@ une conversation, et la formule d'amitié sonne creux répétée 250 fois par an
 régler. » — le tableau, et fin. Les accents des en-têtes et du lien, perdus à la construction,
 sont rétablis : ces mails partent à l'extérieur.
 
+## Mise en production — 10 septembre 2026
+
+Les quatre workflows sont publiés. Décision prise en connaissance des zones non éprouvées
+ci-dessous : aucune ne peut faire perdre une pièce, toutes se rattrapent à la main, et
+l'usage réel les révélera plus vite qu'une recette de laboratoire.
+
+Avant publication, `envoye_le` a été vidé sur les trois lignes du journal. Elles portent de
+vraies pièces — dont la facture Vegaweb de 5 040 € réellement à payer — marquées comme
+envoyées alors que les mails de recette partaient chez Nicolas. Sans ce nettoyage, Sophie ne
+les aurait jamais vues.
+
 ## Reste à éprouver
 
 - **Le rendu des tableaux avec la colonne Montant et le total en pied** — le code est écrit,

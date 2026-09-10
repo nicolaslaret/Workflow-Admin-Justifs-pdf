@@ -33,6 +33,9 @@ n'est pas à refaire.
 | WF3 — Justificatifs | hebdomadaire | Récap `Justif` à Sophie |
 | WF4 — Erreurs | sur échec | Alerte à `nicolas@attraktion.fr` |
 
+Les récapitulatifs partent à `sophie@solead-gestion.fr`, avec `nicolas@attraktion.fr` en copie
+le temps du rodage.
+
 Le rythme quotidien de WF2 est ce qui justifie la séparation d'avec WF3 : une facture à
 payer ne doit pas attendre jusqu'à six jours.
 
@@ -100,11 +103,13 @@ Faite. `journal_factures`, seize colonnes.
 
 ### Étapes 2 à 5 — Workflows
 
-Construits désactivés, credentials à sélectionner ensuite sur chaque nœud.
+Faites. Les quatre workflows sont publiés depuis le 10 septembre 2026.
 
 ### Étape 6 — Règles Gmail
 
-Voir [`docs/regles-gmail.md`](docs/regles-gmail.md).
+**C'est ce qui reste à faire, et c'est ce qui fait vivre la chaîne.** Sans règles, seuls les
+mails labellisés à la main entrent dans la file : le système tourne mais ne reçoit rien.
+Les expéditeurs relevés sur six mois sont dans [`docs/regles-gmail.md`](docs/regles-gmail.md).
 
 ## Rejeu
 
