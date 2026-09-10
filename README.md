@@ -38,15 +38,21 @@ payer ne doit pas attendre jusqu'à six jours.
 
 ## Modèle de données
 
-Data Table n8n `journal_factures` (`RjKH530pzYwbIkIk`, projet personnel). Quatorze colonnes,
+Data Table n8n `journal_factures` (`RjKH530pzYwbIkIk`, projet personnel). Seize colonnes,
 toutes en `string`. La colonne `id` n'est pas déclarée — n8n la génère.
 
 `cle_piece` · `message_id` · `expediteur` · `sujet_mail` · `fournisseur` · `date_facture` ·
-`numero_facture` · `entite` · `type_document` · `statut` · `chemin_dropbox` · `lien_dropbox` ·
-`date_traitement` · `envoye_le`
+`numero_facture` · `entite` · `type_document` · `montant_ttc` · `devise` · `statut` ·
+`chemin_dropbox` · `lien_dropbox` · `date_traitement` · `envoye_le`
 
 `entite` ∈ `AKTIMMO` | `ATTRAKTION` | `COMAKT` | `PERSO` | `""`
 `type_document` ∈ `facture` | `recu` | `avoir` | `relance` | `autre`
+
+**`montant_ttc` est un confort, pas une obligation.** C'est le montant réellement dû toutes
+taxes comprises, stocké en décimal simple (`5040.00`) avec sa `devise` à côté. Il n'entre pas
+dans le test de complétude : une pièce dont le montant est illisible se dépose et se
+journalise normalement, elle ne part pas en `A-verifier`. Il n'apparaît ni dans le chemin ni
+dans le nom de fichier — uniquement au journal et dans les tableaux envoyés à Sophie.
 
 **`envoye_le` est le mécanisme anti-doublon d'envoi.** Les workflows d'envoi filtrent sur
 « pas encore envoyé », jamais sur une fenêtre de dates glissante : une fenêtre à sept jours
@@ -90,7 +96,7 @@ protège des décalages de fin d'année, où une facture de décembre arrive en 
 
 ### Étape 1 — Data Table
 
-Faite. `journal_factures`, quatorze colonnes.
+Faite. `journal_factures`, seize colonnes.
 
 ### Étapes 2 à 5 — Workflows
 

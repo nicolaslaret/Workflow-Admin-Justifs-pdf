@@ -129,8 +129,28 @@ En production, Sophie recevrait 52 mails par an intitulés `Justificatifs` et 25
 et `— rien de neuf` quand la semaine est vide. Le crochet `[Admin Nico]` reste en tête, c'est
 lui qui sert au tri chez Sophie.
 
+## Ajout du montant
+
+Sixième et septième champs, facultatifs par construction : `montant_ttc` et `devise`.
+Vérifiés sur les trois pièces de test, sans envoi de mail.
+
+| Pièce | Ce que dit le PDF | Stocké |
+|---|---|---|
+| Facture Anthropic | `Amount due $20.00 USD` | `20.00` `USD` |
+| Reçu Anthropic | `Amount paid $20.00` | `20.00` `USD` |
+| Facture Sylvain | `TOTAL HT 4200` · `TVA 840` · `TOTAL TTC 5040,00 €` | `5040.00` `EUR` |
+
+Le modèle prend bien le TTC et non le HT sur la facture française, et l'« Amount due » plutôt
+que le sous-total sur l'anglaise. La virgule décimale française est convertie à la
+normalisation, qui distingue le séparateur décimal du séparateur de milliers en regardant
+combien de chiffres le suivent.
+
 ## Reste à éprouver
 
+- **Le rendu des tableaux avec la colonne Montant et le total en pied** — le code est écrit,
+  aucun mail n'a encore été envoyé depuis.
+- **Une pièce sans montant lisible** — les trois pièces de test en ont toutes un, la mention
+  « total de X pièces sur Y » n'a donc jamais été affichée.
 - **Un PDF scanné sans couche texte** — la branche `A-verifier` n'a jamais été empruntée.
 - **Le rattrapage 409** sur un lien de partage déjà existant.
 - **Une facture AKTIMMO ou COMAKT** — seule ATTRAKTION a été rencontrée.
