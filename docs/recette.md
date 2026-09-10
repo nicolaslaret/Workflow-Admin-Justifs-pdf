@@ -86,9 +86,36 @@ destinataire d'abord.
   reçues**, donc Nicolas Laret et ses trois sociétés sont toujours le destinataire, jamais
   l'émetteur. Et sur une facture française, le bloc portant le SIRET est celui de l'émetteur.
 
+### 6. `isEmpty` ne reconnaît pas une chaîne vide
+
+WF2 ne remontait aucune ligne alors que le journal en contenait une, `A-payer`, avec
+`envoye_le` vide. Le filtre `envoye_le isEmpty` des Data Tables n8n ne matche qu'une valeur
+**nulle** — or l'insertion écrit une chaîne vide. Le même filtre sur `eq ""` remonte bien la
+ligne, ce qui a confirmé le diagnostic.
+
+Basculer sur `eq ""` aurait déplacé le problème : la procédure de rejeu documentée consiste à
+**vider `envoye_le` à la main** dans la Data Table, ce qui produit vraisemblablement une
+valeur nulle, et le filtre serait retombé en panne dans l'autre sens.
+
+**Correction :** le tri sur `envoye_le` sort du filtre SQL et passe dans le nœud Code, qui
+traite chaîne vide et valeur nulle de la même façon. Le filtre de la Data Table ne porte plus
+que sur `statut`. Au volume attendu — quelques dizaines de lignes par mois — lire toutes les
+lignes d'un statut à chaque tour ne coûte rien.
+
+## Deuxième session d'essais — WF2 et WF3
+
+Envois dirigés vers `nicolas@attraktion.fr` le temps des tests, puis rendus à Sophie.
+
+| Test | Résultat |
+|---|---|
+| WF2 avec une ligne `A-payer` | Mail reçu, tableau à six colonnes, lien fonctionnel |
+| WF2 relancé aussitôt | Aucun second mail — `envoye_le` fait son travail |
+| WF3 avec deux lignes `Justif` | Mail reçu, facture et reçu distingués par la colonne Type |
+| WF3 relancé aussitôt | Mail court « rien de neuf », aucune ligne remarquée |
+| Fuseau horaire | `envoye_le` écrit en `+02:00`, l'heure de Paris est bien appliquée |
+
 ## Reste à éprouver
 
-- **WF2 et WF3** — non testés, ils enverraient un vrai mail à Sophie.
 - **Un PDF scanné sans couche texte** — la branche `A-verifier` n'a jamais été empruntée.
 - **Le rattrapage 409** sur un lien de partage déjà existant.
 - **Une facture AKTIMMO ou COMAKT** — seule ATTRAKTION a été rencontrée.
