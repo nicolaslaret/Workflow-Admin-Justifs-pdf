@@ -114,6 +114,21 @@ Envois dirigés vers `nicolas@attraktion.fr` le temps des tests, puis rendus à 
 | WF3 relancé aussitôt | Mail court « rien de neuf », aucune ligne remarquée |
 | Fuseau horaire | `envoye_le` écrit en `+02:00`, l'heure de Paris est bien appliquée |
 
+### 7. Deux récapitulatifs, un seul objet
+
+Le CDC figeait l'objet des envois : `[Admin Nico] À régler` et `[Admin Nico] Justificatifs`.
+Pendant la recette, deux mails WF3 sont partis à 27 secondes d'intervalle avec le même titre —
+celui contenant les pièces, puis celui du test anti-doublon, vide. Le vide est arrivé en
+dernier, donc en haut de la boîte, et c'est celui qu'on a ouvert.
+
+En production, Sophie recevrait 52 mails par an intitulés `Justificatifs` et 250 intitulés
+`À régler`, sans moyen de distinguer un envoi d'un autre ni de retrouver le bon par recherche.
+
+**Correction :** l'objet porte la date et le nombre de pièces —
+`[Admin Nico] Justificatifs du 10/09 — 2 pièces`, `[Admin Nico] À régler du 10/09 — 1 facture`,
+et `— rien de neuf` quand la semaine est vide. Le crochet `[Admin Nico]` reste en tête, c'est
+lui qui sert au tri chez Sophie.
+
 ## Reste à éprouver
 
 - **Un PDF scanné sans couche texte** — la branche `A-verifier` n'a jamais été empruntée.
