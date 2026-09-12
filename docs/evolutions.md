@@ -121,10 +121,17 @@ réglage d'une ligne, facile à oublier, sans lequel un échec est muet.
 
 **La clé de pièce vient de Dropbox.** `cle_piece` vaut aujourd'hui `{messageId}-{index}`.
 Sans mail, on prend l'empreinte du contenu — et sans la calculer : l'API Dropbox renvoie déjà
-un `content_hash` pour chaque fichier listé. `cle_piece = dbx:{16 premiers caractères}`. Le
-même fichier redéposé est écarté **avant** le téléchargement et avant l'appel au modèle. Un
+un `content_hash` pour chaque fichier listé. `cle_piece = dbx:{16 premiers caractères}`. Un
 re-scan du même document donne d'autres octets et retombe sur le second filet,
 `fournisseur` + `numero_facture` + `type_document`.
+
+**C'est la porte qui interroge le journal sur cette empreinte, avant de télécharger.** Le seul
+dédoublonnage existant est la requête sur les trois champs, et elle est *en aval* du test de
+complétude : une pièce incomplète ne l'atteint jamais. Or c'est précisément sur les pièces
+incomplètes — celles qui restent sur place — qu'il faut éviter de rappeler le modèle à chaque
+tour. Il faut donc un second contrôle, sur `cle_piece`, tout en haut. Le confier à la porte
+plutôt qu'au socle économise aussi le téléchargement, et ne contredit pas la règle d'E2 :
+consulter le journal par empreinte n'est pas regarder le contenu d'un fichier.
 
 **Le HEIC est accepté en entrée directe.** Pas de réglage à changer sur le téléphone, pas de
 nœud de conversion exotique : Dropbox sait rendre un HEIC en JPEG (`/2/files/get_thumbnail_v2`,
@@ -144,6 +151,14 @@ pour les mails). La migration de la Data Table porte aussi `fournisseur_lu` (voi
 toujours** : le déplacement automatique tenait ce rôle, et il n'a plus lieu (voir juste
 en dessous). Avec la ligne au journal, le dédoublonnage le reconnaît avant l'appel au modèle
 et passe, à coût nul. Il sort de la file le jour où le fichier quitte le dossier.
+
+**Une pièce rejetée n'est pas recopiée dans `A-classer`.** Ce dossier existe pour les mails,
+parce que les octets d'une pièce jointe ne vivent nulle part ailleurs et qu'il faut bien les
+poser quelque part. Un fichier déposé à la main est déjà sur Dropbox, dans un dossier visible,
+et il y reste : le recopier créerait un doublon et ferait apparaître la même pièce deux fois
+dans le relevé d'E3, pour aucun gain. Ce n'est pas une entorse à la règle d'E2 — le socle ne
+lit pas la pièce différemment, il constate seulement, par son contrat, que ses octets sont
+déjà à un emplacement durable et visible.
 
 **Un échec laisse le fichier à la racine de son dossier de dépôt**, sous les yeux, plutôt que
 dans un dossier système. Décidé ainsi : la visibilité primait. C'est la ligne de journal
@@ -169,6 +184,28 @@ le garde-fou sur `server_modified` ne coûte rien et lève le doute.
 **Les archives sont préfixées par la date de traitement** — `2026-09-12_scan.pdf` — et
 `autorename` de Dropbox sert de filet. Deux fichiers `scan.pdf` déposés à deux semaines
 d'écart ne se marchent plus dessus.
+
+### Le geste humain : reprendre une pièce rejetée
+
+Une pièce rejetée par la porte mail peut se rattraper de deux façons, et **l'ordre compte**.
+
+**Retirer d'abord le label `A-verifier` du mail.** La pièce repasse dans la file de WF1 au tour
+suivant, avec le même socle — donc avec les mêmes chances qu'un dépôt manuel, puisque la
+compétence de lecture est commune. Si elle passe, il n'y a rien à nettoyer.
+
+**Redéposer à la main est le second recours.** Il ne se justifie que si la pièce est illisible
+par tout chemin, ou **s'il faut forcer l'entité** — le seul pouvoir que le dépôt manuel a et
+que le mail n'a pas.
+
+La raison de cet ordre : un redépôt réussi laisse trois traces de l'échec initial — le label
+`A-verifier` sur le mail, la copie dans `A-classer`, la ligne `A-verifier` au journal — et E3
+continuera de signaler comme en souffrance une pièce traitée depuis longtemps. **Ce ménage ne
+peut pas être automatisé** : la ligne d'échec n'a ni fournisseur ni numéro, c'est précisément
+pour ça qu'elle a échoué, et il n'existe donc aucune clé commune avec la ligne réussie.
+
+Dans l'autre sens il n'y a pas de risque : retirer le label après un redépôt réussi fait
+retraiter le mail, mais le dédoublonnage sur les trois champs reconnaît la ligne déjà écrite et
+pose `OK` sans second dépôt.
 
 ### Points à trancher
 
@@ -381,6 +418,11 @@ Trois sources, parce que chacune attrape ce que les autres manquent :
   dossier qualifiant est un échec resté sur place ; un fichier posé **à la racine** n'est dans
   aucune file et serait ignoré à jamais. Ce dernier cas mérite d'être nommé à part dans le
   mail : ce n'est pas une pièce en échec, c'est une pièce que personne ne regarde.
+
+**Une même pièce apparaît dans plusieurs de ces sources** — un rejet du dépôt manuel est à la
+fois un fichier resté sur place et une ligne `A-verifier` au journal. Le relevé déduplique sur
+`cle_piece`, sinon il compte deux à trois fois la même chose et devient illisible le jour où il
+compte le plus.
 
 ### Ce que ça change
 
