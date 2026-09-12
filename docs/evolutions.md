@@ -152,13 +152,9 @@ toujours** : le déplacement automatique tenait ce rôle, et il n'a plus lieu (v
 en dessous). Avec la ligne au journal, le dédoublonnage le reconnaît avant l'appel au modèle
 et passe, à coût nul. Il sort de la file le jour où le fichier quitte le dossier.
 
-**Une pièce rejetée n'est pas recopiée dans `A-classer`.** Ce dossier existe pour les mails,
-parce que les octets d'une pièce jointe ne vivent nulle part ailleurs et qu'il faut bien les
-poser quelque part. Un fichier déposé à la main est déjà sur Dropbox, dans un dossier visible,
-et il y reste : le recopier créerait un doublon et ferait apparaître la même pièce deux fois
-dans le relevé d'E3, pour aucun gain. Ce n'est pas une entorse à la règle d'E2 — le socle ne
-lit pas la pièce différemment, il constate seulement, par son contrat, que ses octets sont
-déjà à un emplacement durable et visible.
+**Une pièce rejetée n'est copiée nulle part** — et le dossier `A-classer` disparaît. Voir
+[Une pièce non traitée reste à sa porte](#une-pièce-non-traitée-reste-à-sa-porte) dans E2 :
+c'est une règle du socle, pas une particularité du dépôt manuel.
 
 **Un échec laisse le fichier à la racine de son dossier de dépôt**, sous les yeux, plutôt que
 dans un dossier système. Décidé ainsi : la visibilité primait. C'est la ligne de journal
@@ -197,9 +193,9 @@ compétence de lecture est commune. Si elle passe, il n'y a rien à nettoyer.
 par tout chemin, ou **s'il faut forcer l'entité** — le seul pouvoir que le dépôt manuel a et
 que le mail n'a pas.
 
-La raison de cet ordre : un redépôt réussi laisse trois traces de l'échec initial — le label
-`A-verifier` sur le mail, la copie dans `A-classer`, la ligne `A-verifier` au journal — et E3
-continuera de signaler comme en souffrance une pièce traitée depuis longtemps. **Ce ménage ne
+La raison de cet ordre : un redépôt réussi laisse deux traces de l'échec initial — le label
+`A-verifier` sur le mail et la ligne `A-verifier` au journal — et E3 continuera de signaler
+comme en souffrance une pièce traitée depuis longtemps. **Ce ménage ne
 peut pas être automatisé** : la ligne d'échec n'a ni fournisseur ni numéro, c'est précisément
 pour ça qu'elle a échoué, et il n'existe donc aucune clé commune avec la ligne réussie.
 
@@ -268,7 +264,6 @@ Appliquée aux 26 nœuds de WF1, elle donne un partage net :
 | Marquer OK | Déjà au journal ? · Doublon ? |
 | Marquer OK (doublon) | Lister les dossiers · Choisir le dossier |
 | Marquer A-verifier | Déposer · Lien · Consolider |
-| | Préparer et déposer dans A-classer |
 | | Écrire au journal |
 
 **Trois nœuds Gmail : c'est tout ce qui est réellement propre à la porte mail.** Les vingt
@@ -313,7 +308,7 @@ plus tard.
 | tout le reste | `a-verifier`, avec le motif écrit noir sur blanc |
 
 **Le nœud `Texte lisible ?` cesse d'être une porte de sortie vers l'échec pour devenir un
-aiguillage.** Aujourd'hui `faux` mène à `A-classer` ; demain `faux` mène à la branche
+aiguillage.** Aujourd'hui `faux` mène au dossier de repli ; demain `faux` mène à la branche
 document. C'est un fil à déplacer, pas un nœud à écrire — et c'est ce qui fait disparaître la
 cause de rejet la plus fréquente de la chaîne.
 
@@ -346,6 +341,41 @@ complétude — un montant illisible ne fait pas partir la pièce en `A-verifier
 
 Le nœud d'extraction actuel ne sait porter ni image ni document : les branches non-texte
 passent par un appel direct à l'API. C'est le seul nœud réellement nouveau du socle.
+
+### Une pièce non traitée reste à sa porte
+
+> **Une pièce que le socle n'a pas su ranger ne bouge pas.** Elle reste dans Gmail si elle est
+> arrivée par mail, dans son dossier de dépôt si elle est arrivée par Dropbox. Son état, c'est
+> le label d'un côté, le fichier resté en place de l'autre, et dans les deux cas une ligne au
+> journal qui en porte le motif.
+
+**Le dossier `Justificatifs/A-classer/` disparaît**, et avec lui les deux nœuds qui
+l'alimentent. La branche d'échec se réduit à écrire la ligne de journal et rendre le verdict.
+
+Il était né d'un raisonnement faux — que les octets d'une pièce jointe ne vivent nulle part
+ailleurs. Ils vivent dans Gmail, durablement, avec l'expéditeur, la date et le fil autour. Le
+mail est un stockage, pas un tuyau.
+
+Et le dossier avait un défaut propre : **rien ne le vide jamais.** Une pièce rejetée puis
+réparée y laisse sa copie indéfiniment ; au bout de quelques mois on ne distingue plus ce qui
+attend de ce qui est réglé — dans le dossier même dont le rôle est de dire ce qui attend. Pour
+ne pas signaler éternellement des pièces traitées, E3 devrait rapprocher chaque fichier d'une
+éventuelle ligne réussie de même identifiant de message : de la logique qui n'existerait que
+pour compenser le dossier.
+
+**Ce qu'on perd** : réparer un rejet en le glissant depuis `A-classer` vers le bon dossier de
+dépôt, sans quitter Dropbox. Peu de chose — la bonne pratique reste de retirer le label et de
+laisser WF1 rejouer, qui ne demande aucun téléchargement, et le dépôt manuel ne sert qu'à
+forcer l'entité.
+
+**Le risque résiduel** : supprimer un mail portant le label `A-verifier` perd les octets. La
+réponse est de ne pas supprimer un mail labellisé, pas de garder une copie de tout par
+précaution.
+
+**Le contenu actuel du dossier se traite une fois, à la main.** La chaîne tourne depuis le
+10 septembre 2026 : il contient de vraies pièces rejetées. Le premier relevé d'E3 les listera
+par le label Gmail — la source qui voit les rejets d'avant C4 — après quoi le dossier peut être
+vidé, supprimé, et retiré du README et d'`exploitation.md`.
 
 ### Ce que ça change
 
@@ -406,8 +436,8 @@ Un mail à `nicolas@attraktion.fr` qui dit ce qui attend une main humaine.
 - **WF6** dit *« une pièce attend ta main »* — elle a suivi son chemin normalement et s'est
   rangée dans le repli. Métier, périodique, un mail qui récapitule.
 
-Aujourd'hui la seconde catégorie n'a aucune voix : une pièce peut dormir des semaines dans
-`A-classer` sans que personne ne le sache.
+Aujourd'hui la seconde catégorie n'a aucune voix : une pièce peut dormir des semaines dans le
+dossier de repli sans que personne ne le sache.
 
 **Pas de mail quand il n'y a rien.** Le silence signifie que tout est propre — c'est ce qui
 rend le mail lisible le jour où il arrive.
@@ -420,7 +450,6 @@ d'un seul mail, sans rien savoir de la façon dont chaque pièce est entrée.
 | Ce qui est en souffrance | Porte concernée |
 |---|---|
 | Le label `A-verifier` sur un mail | mail |
-| Fichiers dans `Justificatifs/A-classer/` | mail |
 | Fichiers restés dans un dossier de dépôt | Dropbox |
 | Fichiers posés à la racine de `Dépôt manuel` | Dropbox |
 | Lignes du journal en `statut = A-verifier` | les deux |
@@ -428,8 +457,9 @@ d'un seul mail, sans rien savoir de la façon dont chaque pièce est entrée.
 Quatre remarques sur ces sources :
 
 **Le label Gmail est l'état vrai de la porte mail**, exactement comme le fichier resté sur
-place est l'état vrai de la porte Dropbox. Le fichier dans `A-classer` et la ligne au journal
-n'en sont que des conséquences. C'est aussi **la seule source qui voit les pièces rejetées
+place est l'état vrai de la porte Dropbox — c'est la règle
+[« une pièce non traitée reste à sa porte »](#une-pièce-non-traitée-reste-à-sa-porte) vue du
+côté du relevé. C'est aussi **la seule source qui voit les pièces rejetées
 avant l'existence de [C4](#c4--une-pièce-partie-en-a-classer-ne-laisse-aucune-trace-au-journal)** :
 sans elle, le premier relevé serait aveugle à tout l'historique.
 
@@ -446,12 +476,9 @@ donc n'entre jamais dans la file : il n'est ni en échec ni en souffrance, il n'
 la chaîne. Aucun relevé ne peut le signaler. C'est la limite du principe « Gmail qualifie », et
 la raison pour laquelle les règles Gmail restent ce qui fait vivre le système.
 
-**Une même pièce apparaît dans plusieurs de ces sources** — un rejet par mail y est à la fois
-un label, un fichier dans `A-classer` et une ligne au journal. Le relevé déduplique sur
-`cle_piece`, sinon il compte deux à trois fois la même chose et devient illisible le jour où il
-compte le plus. Le rapprochement est possible parce que les trois traces d'un rejet par mail
-portent le même identifiant de message : `cle_piece` vaut `{messageId}-{index}`, et le nom du
-fichier dans `A-classer` commence par les deux.
+**Une même pièce apparaît dans deux de ces sources** — un rejet par mail y est à la fois un
+label et une ligne au journal. Le relevé déduplique sur `cle_piece`, qui vaut `{messageId}-{index}`
+pour la porte mail et porte donc l'identifiant du message labellisé.
 
 ### Ce que ça change
 
@@ -467,8 +494,7 @@ Rien à changer ailleurs.
 d'un dossier qui bouge peu devient vite du bruit qu'on n'ouvre plus. Hebdomadaire, avec une
 exception quotidienne au-delà d'un certain nombre de pièces, est peut-être plus juste.
 
-**Un seuil d'ancienneté.** Une pièce arrivée en `A-classer` ce matin n'a pas besoin d'être
-signalée. Au-delà de quelques jours, si.
+**Un seuil d'ancienneté.** Une pièce rejetée ce matin n'a pas besoin d'être signalée. Au-delà de quelques jours, si.
 
 **L'objet du mail.** Garder le crochet `[Admin Nico]` qui sert au tri, et y mettre le nombre
 de pièces en attente pour que le mail se lise sans être ouvert.
@@ -522,12 +548,17 @@ et la porte Dropbox devra le réimplémenter. Le silence n'en est que le symptô
 acceptés (E2 donne un chemin de lecture aux images), et rendre un `a-verifier` motivé pour ce
 qui reste réellement inexploitable — au lieu du silence.
 
-## C4 — Une pièce partie en `A-classer` ne laisse aucune trace au journal
+## C4 — Une pièce rejetée ne laisse aucune trace au journal
 
 La branche d'échec de WF1 dépose dans `A-classer` et pose le label `A-verifier`, mais
-n'écrit pas au journal : l'écriture n'existe que sur le chemin du succès. **Le journal ne
+n'écrit pas au journal : l'écriture n'existe que sur le chemin du succès. Le commentaire du
+nœud `Préparer A-classer` l'assume — *« Aucune ligne au journal. »* **Le journal ne
 connaît donc pas les pièces en souffrance.** Le label Gmail est la seule trace, et il n'en
 reste rien pour une pièce qui ne vient pas d'un mail.
 
-**Correction :** écrire la ligne avec `statut = A-verifier`. C'est aussi ce qui rend possible
-le dédoublonnage des échecs prévu par E1 et le relevé par le journal prévu par E3.
+**Correction :** écrire la ligne avec `statut = A-verifier` et son motif — **à la place** du
+dépôt dans `A-classer`, qui disparaît (voir
+[« une pièce non traitée reste à sa porte »](#une-pièce-non-traitée-reste-à-sa-porte)). La
+branche d'échec échange donc deux nœuds contre un, et le motif est ce qui rend le relevé d'E3
+actionnable au lieu de seulement inquiétant. C'est aussi ce qui rend possible le dédoublonnage
+des échecs prévu par E1.
