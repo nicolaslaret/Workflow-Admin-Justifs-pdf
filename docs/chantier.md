@@ -7,19 +7,20 @@ faut pas défaire.
 ## Le prompt d'amorçage
 
 ```
-Nous reprenons le projet Workflow-Admin-Justifs-pdf.
+Nous reprenons le projet Workflow-Admin-Justifs-pdf pour construire la v2.
 
 Lis docs/chantier.md et applique-le à partir de l'étape 0.
-
-Si docs/evolutions.md ne contient pas les sections E1, E2, E3, c'est que la
-branche claude/repo-evolutions-xqv0d3 n'est pas fusionnée : va la chercher.
 
 Ne publie aucun workflow et ne modifie WF1 sans mon accord explicite.
 Commence par l'étape 1 et arrête-toi pour me montrer les résultats.
 ```
 
-Le dernier paragraphe compte autant que le premier : la chaîne est **en production**, quatre
+Le troisième paragraphe compte autant que le premier : la chaîne est **en production**, quatre
 workflows publiés tournent à leurs horaires sur de vraies factures.
+
+Rien d'autre n'est nécessaire. La session démarre sur `main`, qui porte la spec complète, et
+travaille sur la branche de travail que son environnement lui attribue — c'est normal, et c'est
+cette branche qui sera fusionnée dans `main` en fin de chantier.
 
 ---
 
@@ -123,6 +124,16 @@ README et d'`exploitation.md`. Le premier relevé aura listé son contenu par le
 
 Mettre enfin à jour l'état d'E1, E2, E3 en `faite`, et documenter les nouveaux réglages dans
 `exploitation.md` — horaires, dossiers, seuils.
+
+---
+
+## Étape 7 — Refermer le chantier
+
+Fusionner la branche de travail dans `main`, la supprimer, et poser l'étiquette `v2.0` sur le
+commit de fusion. Voir *Organisation du dépôt* dans le [README](../README.md).
+
+Une branche de chantier qui survit à son chantier redevient ce qu'on a mis du temps à défaire :
+une seconde vérité sans autorité.
 
 ---
 

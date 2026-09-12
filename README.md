@@ -25,6 +25,23 @@ modification du workflow.
 Le code SDK des workflows n'est pas dupliqué ici : n8n conserve l'historique de versions de
 chaque workflow, qui fait foi.
 
+## Organisation du dépôt
+
+`main` porte la vérité : l'état documenté du système et les chantiers instruits. Une session
+neuve démarre dessus et n'a besoin d'aucun nom de branche pour trouver son chemin.
+
+Chaque chantier vit sur une branche de travail éphémère, fusionnée dans `main` puis supprimée.
+**Une branche est un plan de travail, pas une archive de version** — ce sont les étiquettes qui
+marquent les versions livrées, et elles ne bougent jamais.
+
+| Étiquette | Ce qu'elle marque |
+|---|---|
+| `v1.0` | 10 septembre 2026 — les quatre workflows passent en production |
+| `v2.0` | à poser quand E1, E2 et E3 tourneront |
+
+Brancher court, fusionner vite : le risque n'est pas de créer une branche, c'est d'en laisser
+une traîner. Une branche non fusionnée devient une seconde vérité que personne n'a validée.
+
 ## Architecture
 
 Quatre workflows séparés, chacun rejouable indépendamment : si un envoi échoue, l'ingestion
