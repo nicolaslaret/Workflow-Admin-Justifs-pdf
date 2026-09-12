@@ -397,32 +397,61 @@ dans le nœud d'aiguillage, à décider au moment de l'écrire.
 
 ### L'idée
 
-Un mail à `nicolas@attraktion.fr` qui dit ce qui attend une main humaine. Aujourd'hui rien ne
-le dit : WF4 alerte quand un workflow **tombe**, ce qui n'est pas la même chose qu'une pièce
-qui a suivi son chemin normalement et s'est rangée dans `A-classer`. Une pièce peut y dormir
-des semaines sans que personne ne le sache.
+Un mail à `nicolas@attraktion.fr` qui dit ce qui attend une main humaine.
+
+**Ce n'est pas ce que fait WF4**, et les deux sont nécessaires :
+
+- **WF4** dit *« un workflow est tombé »* — credential expiré, API en panne. Technique,
+  immédiat, un mail par incident.
+- **WF6** dit *« une pièce attend ta main »* — elle a suivi son chemin normalement et s'est
+  rangée dans le repli. Métier, périodique, un mail qui récapitule.
+
+Aujourd'hui la seconde catégorie n'a aucune voix : une pièce peut dormir des semaines dans
+`A-classer` sans que personne ne le sache.
 
 **Pas de mail quand il n'y a rien.** Le silence signifie que tout est propre — c'est ce qui
 rend le mail lisible le jour où il arrive.
 
 ### Ce qu'il regarde
 
-Trois sources, parce que chacune attrape ce que les autres manquent :
+Il lit des **états**, pas des exécutions : c'est ce qui lui permet de couvrir les deux portes
+d'un seul mail, sans rien savoir de la façon dont chaque pièce est entrée.
 
-- **`Justificatifs/A-classer/`** — les pièces déposées sans avoir passé le test de
-  complétude. C'est l'état réel sur le disque, la source la plus fiable.
-- **Le journal, `statut = A-verifier`** — ce que la chaîne a explicitement mis de côté. Ne
-  devient utile qu'après [C4](#c4--une-pièce-partie-en-a-classer-ne-laisse-aucune-trace-au-journal)
-  et l'écriture des échecs prévue par E1.
-- **Les dossiers de dépôt manuel, `Dépôt manuel` comprise** — un fichier qui traîne dans un
-  dossier qualifiant est un échec resté sur place ; un fichier posé **à la racine** n'est dans
-  aucune file et serait ignoré à jamais. Ce dernier cas mérite d'être nommé à part dans le
-  mail : ce n'est pas une pièce en échec, c'est une pièce que personne ne regarde.
+| Ce qui est en souffrance | Porte concernée |
+|---|---|
+| Le label `A-verifier` sur un mail | mail |
+| Fichiers dans `Justificatifs/A-classer/` | mail |
+| Fichiers restés dans un dossier de dépôt | Dropbox |
+| Fichiers posés à la racine de `Dépôt manuel` | Dropbox |
+| Lignes du journal en `statut = A-verifier` | les deux |
 
-**Une même pièce apparaît dans plusieurs de ces sources** — un rejet du dépôt manuel est à la
-fois un fichier resté sur place et une ligne `A-verifier` au journal. Le relevé déduplique sur
+Quatre remarques sur ces sources :
+
+**Le label Gmail est l'état vrai de la porte mail**, exactement comme le fichier resté sur
+place est l'état vrai de la porte Dropbox. Le fichier dans `A-classer` et la ligne au journal
+n'en sont que des conséquences. C'est aussi **la seule source qui voit les pièces rejetées
+avant l'existence de [C4](#c4--une-pièce-partie-en-a-classer-ne-laisse-aucune-trace-au-journal)** :
+sans elle, le premier relevé serait aveugle à tout l'historique.
+
+**Un fichier posé à la racine de `Dépôt manuel`** n'est dans aucune file et serait ignoré à
+jamais. À nommer à part dans le mail : ce n'est pas une pièce en échec, c'est une pièce que
+personne ne regarde.
+
+**Le journal en `A-verifier`** ne devient utile qu'après C4 et l'écriture des échecs prévue
+par E1 — mais il est le seul à porter le **motif** du rejet, qui est ce qui rend le mail
+actionnable plutôt que seulement inquiétant.
+
+**Ce que rien ne peut voir.** Un mail d'un expéditeur sans règle Gmail n'est jamais labellisé,
+donc n'entre jamais dans la file : il n'est ni en échec ni en souffrance, il n'existe pas pour
+la chaîne. Aucun relevé ne peut le signaler. C'est la limite du principe « Gmail qualifie », et
+la raison pour laquelle les règles Gmail restent ce qui fait vivre le système.
+
+**Une même pièce apparaît dans plusieurs de ces sources** — un rejet par mail y est à la fois
+un label, un fichier dans `A-classer` et une ligne au journal. Le relevé déduplique sur
 `cle_piece`, sinon il compte deux à trois fois la même chose et devient illisible le jour où il
-compte le plus.
+compte le plus. Le rapprochement est possible parce que les trois traces d'un rejet par mail
+portent le même identifiant de message : `cle_piece` vaut `{messageId}-{index}`, et le nom du
+fichier dans `A-classer` commence par les deux.
 
 ### Ce que ça change
 
