@@ -126,12 +126,12 @@ même fichier redéposé est écarté **avant** le téléchargement et avant l'a
 re-scan du même document donne d'autres octets et retombe sur le second filet,
 `fournisseur` + `numero_facture` + `type_document`.
 
-**Le HEIC est accepté en entrée directe, et converti par Dropbox.** Pas de réglage à changer
-sur le téléphone, pas de nœud de conversion exotique : l'API Dropbox sait rendre un HEIC en
-JPEG (`/2/files/get_thumbnail_v2`, jusqu'à 2048×1536 — déjà plus que ce que le modèle
-exploite). Même credential, même API que le reste de la chaîne. **C'est le JPEG converti qui
-part à la destination définitive**, pas le HEIC : ces fichiers sont destinés à une comptable,
-et un HEIC s'ouvre mal hors de l'écosystème Apple. Le HEIC d'origine reste dans `Archives`.
+**Le HEIC est accepté en entrée directe.** Pas de réglage à changer sur le téléphone, pas de
+nœud de conversion exotique : Dropbox sait rendre un HEIC en JPEG (`/2/files/get_thumbnail_v2`,
+jusqu'à 2048×1536 — déjà plus que ce que le modèle exploite), même credential et même API que
+le reste de la chaîne. **La conversion appartient au socle**, pas à cette porte, et E2 dit
+pourquoi. C'est le JPEG converti qui part à la destination définitive ; le HEIC d'origine reste
+dans `Archives` avec son nom.
 
 **Trois colonnes du journal perdent leur sens** : `message_id`, `expediteur`, `sujet_mail`.
 Elles restent vides, et deux colonnes les remplacent plutôt que d'être détournées :
@@ -201,49 +201,114 @@ WF1 (porte mail)              WF5 (porte Dropbox)
 Gmail → éclater                lister → filtrer → télécharger
         │                              │
         └────── WF0 — Traiter une pièce ──────┘
-    lire (PDF texte | PDF scanné | image, HEIC converti)
+    aiguiller et lire (PDF texte | PDF scanné | image | HEIC)
     → extraire → normaliser → complétude → dédoublonner
     → déposer → lien de partage → journal → rendre un verdict
         │                              │
     poser le label               déplacer vers Archives
 ```
 
-Ce que chaque porte garde en propre, c'est ce qui lui est réellement propre : la façon de
-trouver les pièces, et la façon de marquer qu'elles sont traitées. Un label Gmail d'un côté,
-un déplacement de fichier de l'autre.
+### La règle qui décide de la frontière
+
+> **Une porte ne regarde jamais le contenu ni le format d'une pièce. Elle produit des
+> octets, un nom et une qualification. Tout ce qui consiste à ouvrir le fichier appartient
+> au socle.**
+
+Cette phrase vaut mieux qu'une liste de nœuds : elle tranche aussi les cas qu'on n'a pas
+encore rencontrés. **La lecture du PDF texte est dans le socle**, au même titre que la lecture
+d'une image — c'est une façon d'ouvrir un fichier parmi d'autres, pas un privilège de la porte
+mail. Un PDF avec couche texte déposé à la main suit donc exactement le même chemin que le
+même PDF reçu par mail, sans que WF5 ait à savoir ce qu'est une couche texte.
+
+Appliquée aux 26 nœuds de WF1, elle donne un partage net :
+
+| Reste à la porte | Part au socle |
+|---|---|
+| Le déclencheur | Lire le texte du PDF |
+| Lire les mails labellisés | Texte lisible ? |
+| Éclater les pièces jointes *(sans son filtre de format)* | Extraire les champs · le nœud modèle |
+| La boucle par pièce | Normaliser · Complétude |
+| Marquer OK | Déjà au journal ? · Doublon ? |
+| Marquer OK (doublon) | Lister les dossiers · Choisir le dossier |
+| Marquer A-verifier | Déposer · Lien · Consolider |
+| | Préparer et déposer dans A-classer |
+| | Écrire au journal |
+
+**Trois nœuds Gmail : c'est tout ce qui est réellement propre à la porte mail.** Les vingt
+autres sont du socle. Ce déséquilibre est la meilleure justification d'E2 — il dit à quel
+point recopier la chaîne dans WF5 aurait été coûteux.
 
 ### Le contrat
 
-**En entrée** : le fichier binaire, `source` (`mail` | `depot-manuel`), `statut`
-(`A-payer` | `Justif`), `entite_imposee` (vide pour un mail, remplie pour un dépôt),
-`reference` (l'identifiant de mail et l'index de pièce, ou l'empreinte Dropbox),
-`fichier_origine`, et l'extension réelle du fichier.
+**En entrée** : le fichier binaire, son nom d'origine et son extension réelle, `source`
+(`mail` | `depot-manuel`), `statut` (`A-payer` | `Justif`), `entite_imposee` (vide pour un
+mail, remplie pour un dépôt), et `reference` (l'identifiant de mail et l'index de pièce, ou
+l'empreinte Dropbox).
 
-**En sortie** : un verdict (`ok` | `a-verifier`), et pour une pièce acceptée sa `cle_piece`,
-son chemin et son lien de partage. L'appelant n'a pas à savoir comment le verdict a été
-obtenu — il n'en fait qu'une chose, marquer la pièce comme traitée.
+Rien d'autre. En particulier, **la porte ne dit pas ce que le fichier contient** : elle donne
+son extension parce qu'elle la lit dans un nom, pas parce qu'elle a ouvert quoi que ce soit.
 
-### La compétence ajoutée : lire autre chose qu'un PDF texte
+**En sortie** : un verdict à trois valeurs — `ok`, `doublon`, `a-verifier` — et pour une pièce
+acceptée sa `cle_piece`, son chemin et son lien de partage. Un `a-verifier` porte en plus son
+motif, en clair.
 
-C'est le vrai contenu neuf d'E2, et ce qui justifie de faire l'extraction maintenant plutôt
-que plus tard. Trois cas au lieu d'un :
+Trois valeurs et non deux, parce que WF1 distingue déjà les trois cas : `Marquer OK`,
+`Marquer OK (doublon)` et `Marquer A-verifier`. Fondre le doublon dans le succès ferait perdre
+une distinction visible aujourd'hui en exécution. Chaque porte traduit ensuite les trois dans
+son vocabulaire : un label pour la porte mail, un déplacement pour la porte Dropbox — où
+`ok` et `doublon` mènent tous deux à `Archives`, la pièce étant traitée dans les deux cas.
 
-1. **PDF avec couche texte** — inchangé, c'est la chaîne actuelle, éprouvée sur de vraies
-   factures.
-2. **PDF sans couche texte (scan)** — le PDF part tel quel au modèle. Le bloc `document` de
-   l'API accepte un PDF en base64 jusqu'à 32 Mo et 100 pages sur un modèle à 200K de
-   contexte : **il n'y a aucune rastérisation page par page à bricoler dans n8n**, ce qui
-   était le coût redouté de cette évolution.
-3. **Image** (`jpg`, `jpeg`, `png`) — bloc `image`. Le HEIC n'est pas un type accepté par
-   l'API : il est converti en JPEG par Dropbox en amont (voir E1).
+**Une pièce, un appel.** Le socle traite une pièce et rend un verdict ; la boucle reste chez
+l'appelant. Le contrat est trivial à lire, chaque pièce apparaît comme une exécution distincte
+dans l'onglet *Executions*, et l'échec de l'une n'emporte pas les autres.
+
+### L'aiguillage : la compétence de lecture, en un seul endroit
+
+C'est le contenu neuf d'E2, et ce qui justifie de faire l'extraction maintenant plutôt que
+plus tard.
+
+| Ce qui entre | Ce que fait le socle |
+|---|---|
+| `.pdf` avec couche texte | extraction texte, puis extraction des champs — la chaîne actuelle, inchangée |
+| `.pdf` sans couche texte | le PDF part entier au modèle, en bloc `document` |
+| `.jpg` `.jpeg` `.png` `.webp` | bloc `image` |
+| `.heic` | conversion en JPEG (voir ci-dessous), puis bloc `image` |
+| tout le reste | `a-verifier`, avec le motif écrit noir sur blanc |
+
+**Le nœud `Texte lisible ?` cesse d'être une porte de sortie vers l'échec pour devenir un
+aiguillage.** Aujourd'hui `faux` mène à `A-classer` ; demain `faux` mène à la branche
+document. C'est un fil à déplacer, pas un nœud à écrire — et c'est ce qui fait disparaître la
+cause de rejet la plus fréquente de la chaîne.
+
+Le PDF scanné part **entier** : le bloc `document` de l'API accepte un PDF en base64 jusqu'à
+32 Mo et 100 pages sur un modèle à 200K de contexte. **Il n'y a aucune rastérisation page par
+page à bricoler dans n8n** — c'était le coût redouté de cette évolution, il n'existe pas.
+
+**La conversion du HEIC appartient au socle, pas à la porte.** L'API n'accepte pas ce format ;
+Dropbox sait le rendre en JPEG (`/2/files/get_thumbnail_v2`), mais seulement pour un fichier
+qui est déjà chez lui — vrai pour un dépôt manuel, faux pour un HEIC reçu par mail. Laisser la
+conversion à la porte Dropbox donnerait au socle deux comportements selon l'appelant, ce que la
+règle interdit. Le socle dépose donc lui-même tout HEIC dans un dossier de travail
+(`/Bannette-Numérique/_conversion/`), demande le rendu, puis efface. Trois appels de plus,
+uniquement pour du HEIC, et un seul comportement quelle que soit la porte.
+
+C'est le JPEG converti qui part à la destination définitive : ces fichiers sont destinés à une
+comptable, et un HEIC s'ouvre mal hors de l'écosystème Apple. Le nom de fichier porte donc
+l'extension d'arrivée, pendant que `fichier_origine` garde le nom d'origine avec la sienne.
+
+**Le contrôle des formats acceptés est dans le socle**, à l'entrée de ce tableau. Il y remplace
+le filtre PDF que la porte mail applique aujourd'hui (voir
+[C3](#c3--une-pièce-jointe-non-pdf-est-ignorée-en-silence)) : juger d'un format, c'est déjà
+lire. Tant que ce filtre reste dans la porte, celle-ci détient un morceau de la compétence, et
+la porte Dropbox doit le réimplémenter.
 
 **Le montant TTC est extrait dans tous les cas**, y compris sur un ticket photographié : la
 consigne d'extraction est celle du socle, une seule, partagée. Sur un ticket, le « net à
 payer » est le total payé. Le montant reste un confort qui n'entre pas dans le test de
 complétude — un montant illisible ne fait pas partir la pièce en `A-verifier`.
 
-Le nœud d'extraction actuel ne sait pas porter d'image ni de document : la branche non-texte
-passe par un appel direct à l'API. C'est le seul nœud réellement nouveau du socle.
+Le nœud d'extraction actuel ne sait porter ni image ni document : les branches non-texte
+passent par un appel direct à l'API. C'est le seul nœud réellement nouveau du socle.
 
 ### Ce que ça change
 
@@ -279,6 +344,13 @@ imposée par le dossier — c'est un champ difficile de moins.
 
 **Le coût par pièce.** Une image coûte plus qu'un extrait de texte. À mesurer sur une
 vingtaine de pièces réelles avant de fixer la fréquence d'E1.
+
+**Faut-il croire l'extension ?** Le contrat fait passer l'extension parce que la porte la lit
+dans un nom — mais un nom ment : un `.pdf` qui est en réalité un JPEG existe, et une photo
+renommée à la main aussi. La règle prise au sérieux voudrait que le socle ne s'en remette pas
+davantage au nom que la porte : reconnaître le format aux premiers octets du fichier (`%PDF`,
+la signature JPEG, celle du PNG) et ne garder l'extension que comme indice. Quelques lignes
+dans le nœud d'aiguillage, à décider au moment de l'écrire.
 
 ---
 
@@ -370,8 +442,14 @@ Le nœud *Éclater les pièces jointes* ne garde que ce qui est `application/pdf
 `.pdf`. Tout le reste est écarté sans trace : ni label, ni journal, ni alerte. **Un
 justificatif envoyé en JPEG n'existe pas pour la chaîne** — et personne ne l'apprend.
 
-**Correction :** accepter les images (E2 leur donne un chemin de lecture), et pour ce qui
-reste réellement inexploitable, laisser une trace au lieu du silence.
+**Ce n'est pas tout à fait un bug, c'est une frontière mal placée** — et c'est ce qui le rend
+intéressant. Juger d'un format, c'est déjà lire : ce filtre appartient au socle, pas à la
+porte. Tant qu'il reste dans WF1, la porte mail détient un morceau de la compétence de lecture
+et la porte Dropbox devra le réimplémenter. Le silence n'en est que le symptôme.
+
+**Correction :** déplacer le contrôle dans le socle, sous la forme d'une liste de formats
+acceptés (E2 donne un chemin de lecture aux images), et rendre un `a-verifier` motivé pour ce
+qui reste réellement inexploitable — au lieu du silence.
 
 ## C4 — Une pièce partie en `A-classer` ne laisse aucune trace au journal
 
