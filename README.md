@@ -19,6 +19,8 @@ modification du workflow.
   ceux qu'il ne faut surtout pas labelliser.
 - [`docs/evolutions.md`](docs/evolutions.md) — le carnet des idées pour la suite, et la
   liste des corrections connues qui attendent le chantier qui les portera.
+- [`docs/chantier.md`](docs/chantier.md) — par où commencer pour construire ces évolutions,
+  dans quel ordre, et ce qu'il ne faut pas défaire.
 
 Le code SDK des workflows n'est pas dupliqué ici : n8n conserve l'historique de versions de
 chaque workflow, qui fait foi.
